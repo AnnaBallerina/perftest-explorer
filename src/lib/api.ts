@@ -14,7 +14,7 @@ export interface TestDetail extends TestResult {
   errors?: string[];
 }
 
-const BASE_URL = "https://perftest.test.com";
+const BASE_URL = "https://k6.verisk.com";
 
 export async function fetchTestResults(): Promise<TestResult[]> {
   const res = await fetch(BASE_URL);
