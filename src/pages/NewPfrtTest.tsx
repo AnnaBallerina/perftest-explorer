@@ -32,14 +32,18 @@ export default function NewPfrtTest() {
         body: JSON.stringify({ name, environment, url, auth, testScript, owner }),
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const result = await res.json().catch(() => null);
       toast.success("Performance test created successfully!");
+      const testData = { name, environment, url, auth, testScript, owner };
+      const testId = result?.id || encodeURIComponent(name);
+      setIsSubmitting(false);
+      navigate(`/test/${testId}`, { state: testData });
+      return;
     } catch (err: any) {
       toast.error(err.message || "Failed to create test");
       setIsSubmitting(false);
       return;
     }
-    setIsSubmitting(false);
-    navigate("/");
   };
 
   return (
