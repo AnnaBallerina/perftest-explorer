@@ -34,7 +34,7 @@ export default function TestList() {
             </p>
           </div>
           <Button
-            onClick={() => navigate("/newpfrttest")}
+            onClick={() => navigate("/newperformancetest")}
             className="bg-success hover:bg-success/90 text-success-foreground"
           >
             <Plus className="h-4 w-4 mr-1" />
