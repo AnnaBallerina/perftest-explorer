@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Clock, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Clock, ArrowRight, Plus } from "lucide-react";
 
 const statusVariant = (status: TestResult["status"]) => {
   switch (status) {
@@ -24,12 +25,21 @@ export default function TestList() {
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold tracking-tight">Performance Tests</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Results fetched from perftest.test.com
-          </p>
+      <header className="border-b bg-info text-info-foreground">
+        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Performance Tests</h1>
+            <p className="text-sm opacity-80 mt-1">
+              Results fetched from perftest.test.com
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/newpfrttest")}
+            className="bg-success hover:bg-success/90 text-success-foreground"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            New Test
+          </Button>
         </div>
       </header>
 
