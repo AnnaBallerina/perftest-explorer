@@ -16,13 +16,29 @@ export default function NewPfrtTest() {
   const [testScript, setTestScript] = useState("");
   const [owner, setOwner] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       toast.error("Test name is required");
       return;
     }
-    toast.success("Performance test created successfully!");
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("https://k6.verisk.com/backend/new/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, environment, url, auth, testScript, owner }),
+      });
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      toast.success("Performance test created successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create test");
+      setIsSubmitting(false);
+      return;
+    }
+    setIsSubmitting(false);
     navigate("/");
   };
 
@@ -122,8 +138,8 @@ export default function NewPfrtTest() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button type="submit" className="bg-success hover:bg-success/90 text-success-foreground">
-                  Create Test
+                <Button type="submit" disabled={isSubmitting} className="bg-success hover:bg-success/90 text-success-foreground">
+                  {isSubmitting ? "Creating..." : "Create Test"}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => navigate("/")}>
                   Cancel
