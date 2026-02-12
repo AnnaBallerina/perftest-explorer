@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function NewPfrtTest() {
+export default function NewPerformanceTest() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [environment, setEnvironment] = useState("");
