@@ -11,7 +11,10 @@ export default function NewPfrtTest() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [environment, setEnvironment] = useState("");
-  const [description, setDescription] = useState("");
+  const [url, setUrl] = useState("");
+  const [auth, setAuth] = useState("");
+  const [testScript, setTestScript] = useState("");
+  const [owner, setOwner] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +66,7 @@ export default function NewPfrtTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="environment" className="font-semibold">Environment</Label>
+                <Label htmlFor="environment" className="font-semibold">Environment <span className="text-danger">*</span></Label>
                 <Input
                   id="environment"
                   placeholder="e.g. staging, production"
@@ -74,14 +77,47 @@ export default function NewPfrtTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description" className="font-semibold">Description</Label>
+                <Label htmlFor="url" className="font-semibold">URL <span className="text-danger">*</span></Label>
+                <Input
+                  id="url"
+                  placeholder="e.g. https://api.example.com/endpoint"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="focus-visible:ring-info"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="auth" className="font-semibold">AUTH <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                <Input
+                  id="auth"
+                  placeholder="e.g. Bearer token or API key"
+                  value={auth}
+                  onChange={(e) => setAuth(e.target.value)}
+                  className="focus-visible:ring-info"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="testScript" className="font-semibold">Test Script <span className="text-danger">*</span></Label>
                 <textarea
-                  id="description"
-                  rows={4}
-                  placeholder="Describe the performance test..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info focus-visible:ring-offset-2"
+                  id="testScript"
+                  rows={6}
+                  placeholder="Paste your test script here..."
+                  value={testScript}
+                  onChange={(e) => setTestScript(e.target.value)}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info focus-visible:ring-offset-2"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="owner" className="font-semibold">Owner <span className="text-danger">*</span></Label>
+                <Input
+                  id="owner"
+                  placeholder="e.g. john.doe@company.com"
+                  value={owner}
+                  onChange={(e) => setOwner(e.target.value)}
+                  className="focus-visible:ring-info"
                 />
               </div>
 
