@@ -14,7 +14,7 @@ export interface TestDetail extends TestResult {
   errors?: string[];
 }
 
-const BASE_URL = "https://k6.verisk.com";
+const BASE_URL = "http://k6.verisk.com/backend/list";
 
 export async function fetchTestResults(): Promise<TestResult[]> {
   const res = await fetch(BASE_URL);
