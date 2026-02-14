@@ -44,7 +44,7 @@ export default function TestDetail() {
   const handleRunTest = async () => {
     setIsRunning(true);
     try {
-      const res = await fetch("http://k6.verisk.com/backend/run/test", {
+      const res = await fetch("/backend/run/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, ...(stateData || {}) }),

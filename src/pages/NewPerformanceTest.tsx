@@ -26,7 +26,7 @@ export default function NewPerformanceTest() {
     }
     setIsSubmitting(true);
     try {
-      const res = await fetch("http://k6.verisk.com/backend/new/test", {
+      const res = await fetch("/backend/new/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, environment, url, auth, testScript, owner }),
