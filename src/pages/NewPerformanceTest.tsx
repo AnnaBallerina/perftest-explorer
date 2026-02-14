@@ -26,7 +26,7 @@ export default function NewPerformanceTest() {
     }
     setIsSubmitting(true);
     try {
-      const res = await fetch("https://k6.verisk.com/backend/new/test", {
+      const res = await fetch("http://k6.verisk.com/backend/new/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, environment, url, auth, testScript, owner }),
@@ -86,7 +86,9 @@ export default function NewPerformanceTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="environment" className="font-semibold">Environment <span className="text-danger">*</span></Label>
+                <Label htmlFor="environment" className="font-semibold">
+                  Environment <span className="text-danger">*</span>
+                </Label>
                 <Input
                   id="environment"
                   placeholder="e.g. staging, production"
@@ -97,7 +99,9 @@ export default function NewPerformanceTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="url" className="font-semibold">URL <span className="text-danger">*</span></Label>
+                <Label htmlFor="url" className="font-semibold">
+                  URL <span className="text-danger">*</span>
+                </Label>
                 <Input
                   id="url"
                   placeholder="e.g. https://api.example.com/endpoint"
@@ -108,7 +112,9 @@ export default function NewPerformanceTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="auth" className="font-semibold">AUTH <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                <Label htmlFor="auth" className="font-semibold">
+                  AUTH <span className="text-muted-foreground text-xs">(optional)</span>
+                </Label>
                 <Input
                   id="auth"
                   placeholder="e.g. Bearer token or API key"
@@ -119,7 +125,9 @@ export default function NewPerformanceTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="testScript" className="font-semibold">Test Script <span className="text-danger">*</span></Label>
+                <Label htmlFor="testScript" className="font-semibold">
+                  Test Script <span className="text-danger">*</span>
+                </Label>
                 <textarea
                   id="testScript"
                   rows={6}
@@ -131,7 +139,9 @@ export default function NewPerformanceTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="owner" className="font-semibold">Owner <span className="text-danger">*</span></Label>
+                <Label htmlFor="owner" className="font-semibold">
+                  Owner <span className="text-danger">*</span>
+                </Label>
                 <Input
                   id="owner"
                   placeholder="e.g. john.doe@company.com"
@@ -142,7 +152,11 @@ export default function NewPerformanceTest() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={isSubmitting} className="bg-success hover:bg-success/90 text-success-foreground">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-success hover:bg-success/90 text-success-foreground"
+                >
                   {isSubmitting ? "Creating..." : "Create Test"}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => navigate("/")}>
