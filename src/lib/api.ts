@@ -32,3 +32,36 @@ export async function fetchTestDetail(id: string): Promise<TestDetail> {
   if (!res.ok) throw new Error(`Failed to fetch test detail: ${res.status}`);
   return res.json();
 }
+
+export interface Execution {
+  id: number;
+  rps: string;
+  owner: string;
+  hold: string;
+  test_name: string;
+  url: string;
+  ramp: string;
+  job: string;
+}
+
+export interface ExecutionDetail {
+  id: string;
+  result: {
+    root_group: {
+      checks: Record<string, { name: string; passes: number; fails: number }>;
+    };
+    metrics: Record<string, Record<string, number>>;
+  };
+}
+
+export async function fetchExecutions(id: string): Promise<Execution[]> {
+  const res = await fetch(`/backend/runtest/${id}/executions`);
+  if (!res.ok) throw new Error(`Failed to fetch executions: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchExecutionDetail(job: string): Promise<ExecutionDetail> {
+  const res = await fetch(`/backend/test_detail/${job}`);
+  if (!res.ok) throw new Error(`Failed to fetch execution detail: ${res.status}`);
+  return res.json();
+}
