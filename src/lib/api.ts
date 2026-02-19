@@ -1,9 +1,14 @@
+import { HtmlHTMLAttributes } from "react";
+
 export interface TestResult {
-  id: string;
-  name: string;
-  status: "passed" | "failed" | "running" | "pending";
-  duration: number;
-  timestamp: string;
+  id: number;
+  test_name: string;
+  url: string;
+  owner: number;
+  rps: string;
+  ramp: string;
+  hold: string;
+  dashboard: string;
   [key: string]: unknown;
 }
 
