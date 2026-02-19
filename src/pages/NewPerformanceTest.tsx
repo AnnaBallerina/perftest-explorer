@@ -163,7 +163,7 @@ export default function NewPerformanceTest() {
                     onChange={(val) => setTestScript(val)}
                     extensions={[javascript()]}
                     height="300px"
-                    theme="dark"
+                    theme="light"
                     placeholder="// Write your k6 script here..."
                   />
                 </div>
