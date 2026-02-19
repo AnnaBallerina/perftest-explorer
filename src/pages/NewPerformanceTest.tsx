@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
 import { toast } from "sonner";
 
 export default function NewPerformanceTest() {
@@ -155,10 +157,16 @@ export default function NewPerformanceTest() {
                 <Label htmlFor="hold" className="font-semibold">
                   K6_Script <span className="text-danger">*</span>
                 </Label>
-                <textarea
-                  id="script"
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info focus-visible:ring-offset-2"
-                />
+                <div className="rounded-md border border-input overflow-hidden">
+                  <CodeMirror
+                    value={testScript}
+                    onChange={(val) => setTestScript(val)}
+                    extensions={[javascript()]}
+                    height="300px"
+                    theme="dark"
+                    placeholder="// Write your k6 script here..."
+                  />
+                </div>
               </div>
 
               <div className="flex gap-3 pt-2">
