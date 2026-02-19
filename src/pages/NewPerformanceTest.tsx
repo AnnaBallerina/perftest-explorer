@@ -9,18 +9,19 @@ import { toast } from "sonner";
 
 export default function NewPerformanceTest() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [environment, setEnvironment] = useState("");
+  const [test_name, setName] = useState("");
+  const [rps, setRPS] = useState("");
   const [url, setUrl] = useState("");
-  const [auth, setAuth] = useState("");
+  const [ramp, setRamp] = useState("");
   const [testScript, setTestScript] = useState("");
   const [owner, setOwner] = useState("");
+  const [hold, setHold] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
+    if (!test_name.trim()) {
       toast.error("Test name is required");
       return;
     }
@@ -29,13 +30,13 @@ export default function NewPerformanceTest() {
       const res = await fetch("http://k6.verisk.com/backend/new/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, environment, url, auth, testScript, owner }),
+        body: JSON.stringify({ test_name, url, testScript, owner, rps, ramp, hold }),
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const result = await res.json().catch(() => null);
       toast.success("Performance test created successfully!");
-      const testData = { name, environment, url, auth, testScript, owner };
-      const testId = result?.id || encodeURIComponent(name);
+      const testData = { test_name, url, testScript, owner, rps, ramp, hold };
+      const testId = result?.id || encodeURIComponent(test_name);
       setIsSubmitting(false);
       navigate(`/test/${testId}`, { state: testData });
       return;
@@ -77,23 +78,23 @@ export default function NewPerformanceTest() {
                   Test Name <span className="text-danger">*</span>
                 </Label>
                 <Input
-                  id="name"
+                  id="test_name"
                   placeholder="e.g. Homepage Load Test"
-                  value={name}
+                  value={test_name}
                   onChange={(e) => setName(e.target.value)}
                   className="focus-visible:ring-info"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="environment" className="font-semibold">
-                  Environment <span className="text-danger">*</span>
+                <Label htmlFor="rps" className="font-semibold">
+                  RPS <span className="text-danger">*</span>
                 </Label>
                 <Input
-                  id="environment"
+                  id="rps"
                   placeholder="e.g. staging, production"
-                  value={environment}
-                  onChange={(e) => setEnvironment(e.target.value)}
+                  value={rps}
+                  onChange={(e) => setRPS(e.target.value)}
                   className="focus-visible:ring-info"
                 />
               </div>
@@ -112,28 +113,27 @@ export default function NewPerformanceTest() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="auth" className="font-semibold">
-                  AUTH <span className="text-muted-foreground text-xs">(optional)</span>
+                <Label htmlFor="ramp" className="font-semibold">
+                  RAMP <span className="text-danger">*</span>
                 </Label>
                 <Input
-                  id="auth"
-                  placeholder="e.g. Bearer token or API key"
-                  value={auth}
-                  onChange={(e) => setAuth(e.target.value)}
+                  id="ramp"
+                  placeholder="time to warm up the app e.g. 3m "
+                  value={ramp}
+                  onChange={(e) => setRamp(e.target.value)}
                   className="focus-visible:ring-info"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="testScript" className="font-semibold">
-                  Test Script <span className="text-danger">*</span>
+                <Label htmlFor="hold" className="font-semibold">
+                  hold <span className="text-danger">*</span>
                 </Label>
-                <textarea
-                  id="testScript"
-                  rows={6}
-                  placeholder="Paste your test script here..."
-                  value={testScript}
-                  onChange={(e) => setTestScript(e.target.value)}
+                <Input
+                  id="hold"
+                  placeholder="Time to run the performance test e.g. 10m"
+                  value={hold}
+                  onChange={(e) => setHold(e.target.value)}
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info focus-visible:ring-offset-2"
                 />
               </div>
@@ -148,6 +148,16 @@ export default function NewPerformanceTest() {
                   value={owner}
                   onChange={(e) => setOwner(e.target.value)}
                   className="focus-visible:ring-info"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="hold" className="font-semibold">
+                  K6_Script <span className="text-danger">*</span>
+                </Label>
+                <textarea
+                  id="script"
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info focus-visible:ring-offset-2"
                 />
               </div>
 
