@@ -10,9 +10,12 @@ import { AlertCircle, Clock, ArrowRight, Plus } from "lucide-react";
 
 const statusVariant = (status: TestResult["status"]) => {
   switch (status) {
-    case "passed": return "default" as const;
-    case "failed": return "destructive" as const;
-    default: return "secondary" as const;
+    case "passed":
+      return "default" as const;
+    case "failed":
+      return "destructive" as const;
+    default:
+      return "secondary" as const;
   }
 };
 
@@ -29,9 +32,7 @@ export default function TestList() {
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Performance Tests</h1>
-            <p className="text-sm opacity-80 mt-1">
-              Results fetched from perftest.test.com
-            </p>
+            <p className="text-sm opacity-80 mt-1">Run perf test in the cloud</p>
           </div>
           <Button
             onClick={() => navigate("/newperformancetest")}
@@ -44,19 +45,13 @@ export default function TestList() {
       </header>
 
       <section className="container mx-auto px-4 py-8 space-y-3">
-        {isLoading && (
-          Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-20 w-full rounded-lg" />
-          ))
-        )}
+        {isLoading && Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
 
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>
-              {(error as Error).message || "Could not load test results."}
-            </AlertDescription>
+            <AlertDescription>{(error as Error).message || "Could not load test results."}</AlertDescription>
           </Alert>
         )}
 
@@ -68,26 +63,25 @@ export default function TestList() {
           >
             <CardContent className="flex items-center justify-between py-4 px-6">
               <div className="space-y-1">
-                <p className="font-medium leading-none">{test.name}</p>
+                <p className="font-medium leading-none">{test.test_name}</p>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1.5">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {test.duration}ms
+                    {test.url}
                   </span>
-                  <span>{new Date(test.timestamp).toLocaleString()}</span>
+                  <span>{test.rps}</span>
+                  <span>{test.ramp}</span>
+                  <span>{test.hold}</span>
+                  <a href={test.dashboard} target="_blank" rel="noopener noreferrer">
+                    <span>{test.dashboard}</span>
+                  </a>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge variant={statusVariant(test.status)}>{test.status}</Badge>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
         ))}
 
-        {data && data.length === 0 && (
-          <p className="text-center text-muted-foreground py-12">No test results found.</p>
-        )}
+        {data && data.length === 0 && <p className="text-center text-muted-foreground py-12">No test results found.</p>}
       </section>
     </main>
   );
