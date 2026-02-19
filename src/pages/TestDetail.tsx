@@ -25,12 +25,13 @@ export default function TestDetail() {
   const navigate = useNavigate();
   const location = useLocation();
   const stateData = location.state as {
-    name: string;
-    environment: string;
+    test_name: string;
+    dashboard: string;
     url: string;
-    auth: string;
-    testScript: string;
     owner: string;
+    rps: string;
+    ramp: string;
+    hold: string;
   } | null;
 
   const [isRunning, setIsRunning] = useState(false);
@@ -57,7 +58,7 @@ export default function TestDetail() {
     setIsRunning(false);
   };
 
-  const testName = stateData?.name || data?.name || "Test Detail";
+  const testName = stateData?.test_name || data?.test_name || "Test Detail";
 
   return (
     <main className="min-h-screen bg-background">
@@ -114,107 +115,35 @@ export default function TestDetail() {
               <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <p className="text-xs text-muted-foreground">Test Name</p>
-                  <p className="text-sm font-medium mt-1">{stateData?.name || data?.name}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Environment</p>
-                  <p className="text-sm font-medium mt-1">{stateData?.environment || data?.environment || "—"}</p>
+                  <p className="text-sm font-medium mt-1">{stateData?.test_name || data?.test_name}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">URL</p>
-                  <p className="text-sm font-medium mt-1 break-all">{stateData?.url || "—"}</p>
+                  <p className="text-sm font-medium mt-1">{stateData?.url || data?.url}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Owner</p>
-                  <p className="text-sm font-medium mt-1">{stateData?.owner || "—"}</p>
+                  <p className="text-sm font-medium mt-1 break-all">{stateData?.owner || data?.owner}</p>
                 </div>
-                {stateData?.auth && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">AUTH</p>
-                    <p className="text-sm font-medium mt-1">••••••••</p>
-                  </div>
-                )}
-                {data?.status && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">Status</p>
-                    <Badge variant={statusVariant(data.status)} className="mt-1">
-                      {data.status}
-                    </Badge>
-                  </div>
-                )}
-                {data?.duration !== undefined && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">Duration</p>
-                    <p className="text-sm font-medium flex items-center gap-1 mt-1">
-                      <Clock className="h-3 w-3" /> {data.duration}ms
-                    </p>
-                  </div>
-                )}
-                {data?.timestamp && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">Timestamp</p>
-                    <p className="text-sm font-medium mt-1">{new Date(data.timestamp).toLocaleString()}</p>
-                  </div>
-                )}
+                <div>
+                  <p className="text-xs text-muted-foreground">RPS</p>
+                  <p className="text-sm font-medium mt-1">{stateData?.rps || data?.rps}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">RAMP</p>
+                  <p className="text-sm font-medium mt-1">{stateData?.ramp || data?.ramp}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">HOLD</p>
+                  <p className="text-sm font-medium mt-1">{stateData?.hold || data?.hold}</p>
+                </div>
+                <div>
+                  <a href={stateData?.dashboard || data?.dashboard} target="_blank" rel="noopener noreferrer">
+                    <p className="text-sm font-medium mt-1">Grafana dashboard LINK</p>
+                  </a>
+                </div>
               </CardContent>
             </Card>
-
-            {stateData?.testScript && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Test Script</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-muted p-4 rounded-md text-sm font-mono overflow-x-auto whitespace-pre-wrap">
-                    {stateData.testScript}
-                  </pre>
-                </CardContent>
-              </Card>
-            )}
-
-            {data?.description && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">{data.description}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {data?.metrics && Object.keys(data.metrics).length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Metrics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
-                    {Object.entries(data.metrics).map(([key, value]) => (
-                      <div key={key}>
-                        <dt className="text-xs text-muted-foreground">{key}</dt>
-                        <dd className="text-sm font-medium mt-0.5">{String(value)}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </CardContent>
-              </Card>
-            )}
-
-            {data?.errors && data.errors.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg text-destructive">Errors</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="list-disc pl-4 space-y-1 text-sm">
-                    {data.errors.map((err, i) => (
-                      <li key={i}>{err}</li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
           </>
         )}
       </section>
