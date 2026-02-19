@@ -26,7 +26,7 @@ export default function NewPerformanceTest() {
     }
     setIsSubmitting(true);
     try {
-      const res = await fetch("/backend/new/test", {
+      const res = await fetch("http://k6.verisk.com/backend/new/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, environment, url, auth, testScript, owner }),
@@ -104,7 +104,7 @@ export default function NewPerformanceTest() {
                 </Label>
                 <Input
                   id="url"
-                  placeholder="e.g. https://api.example.com/endpoint"
+                  placeholder="e.g. http://k6.verisk.com/backend/health"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className="focus-visible:ring-info"
