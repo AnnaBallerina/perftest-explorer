@@ -8,12 +8,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 80,
+    allowedHosts: ["k6.verisk.com"],
     hmr: {
       overlay: false,
     },
     proxy: {
       "/backend": {
-        target: "https://k6.verisk.com",
+        target: "http://k6.verisk.com",
         changeOrigin: true,
         secure: false,
       },
