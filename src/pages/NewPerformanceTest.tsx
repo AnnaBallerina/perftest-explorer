@@ -92,6 +92,7 @@ export default function NewPerformanceTest() {
                 <Label htmlFor="rps" className="font-semibold">
                   RPS <span className="text-danger">*</span>
                 </Label>
+                <p className="text-xs text-muted-foreground">Used as <code className="bg-muted px-1 rounded">TARGET_RPS</code> in k6.js</p>
                 <Input
                   id="rps"
                   placeholder="e.g. staging, production"
@@ -105,6 +106,7 @@ export default function NewPerformanceTest() {
                 <Label htmlFor="url" className="font-semibold">
                   URL <span className="text-danger">*</span>
                 </Label>
+                <p className="text-xs text-muted-foreground">Used as <code className="bg-muted px-1 rounded">TARGET_URL</code> in k6.js</p>
                 <Input
                   id="url"
                   placeholder="e.g. http://k6.verisk.com/backend/health"
@@ -118,9 +120,10 @@ export default function NewPerformanceTest() {
                 <Label htmlFor="ramp" className="font-semibold">
                   RAMP <span className="text-danger">*</span>
                 </Label>
+                <p className="text-xs text-muted-foreground">Used as <code className="bg-muted px-1 rounded">RAMP_DURATION</code> in k6.js</p>
                 <Input
                   id="ramp"
-                  placeholder="time to warm up the app e.g. 3m "
+                  placeholder="time to warm up the app e.g. 3m"
                   value={ramp}
                   onChange={(e) => setRamp(e.target.value)}
                   className="focus-visible:ring-info"
@@ -129,14 +132,15 @@ export default function NewPerformanceTest() {
 
               <div className="space-y-2">
                 <Label htmlFor="hold" className="font-semibold">
-                  hold <span className="text-danger">*</span>
+                  HOLD <span className="text-danger">*</span>
                 </Label>
+                <p className="text-xs text-muted-foreground">Used as <code className="bg-muted px-1 rounded">HOLD_DURATION</code> in k6.js</p>
                 <Input
                   id="hold"
                   placeholder="Time to run the performance test e.g. 10m"
                   value={hold}
                   onChange={(e) => setHold(e.target.value)}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info focus-visible:ring-offset-2"
+                  className="focus-visible:ring-info"
                 />
               </div>
 
