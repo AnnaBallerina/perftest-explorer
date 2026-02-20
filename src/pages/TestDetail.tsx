@@ -9,8 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X, Trash2, Upload } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 const statusVariant = (status: string) => {
@@ -148,6 +148,81 @@ function ExecutionBox({ execution }: { execution: Execution }) {
           )}
         </CardContent>
       )}
+    </Card>
+  );
+}
+
+function FileUploadSection({ testId }: { testId: string }) {
+  const k6InputRef = useRef<HTMLInputElement>(null);
+  const dataInputRef = useRef<HTMLInputElement>(null);
+  const [k6File, setK6File] = useState<File | null>(null);
+  const [dataFile, setDataFile] = useState<File | null>(null);
+  const [isUploadingK6, setIsUploadingK6] = useState(false);
+  const [isUploadingData, setIsUploadingData] = useState(false);
+
+  const uploadFile = async (type: "k6" | "data", file: File) => {
+    const setUploading = type === "k6" ? setIsUploadingK6 : setIsUploadingData;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`http://k6.verisk.com/backend/test/${testId}/upload/${type}`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      toast.success(`${type === "k6" ? "k6.js" : "data.csv"} uploaded successfully!`);
+    } catch (err: any) {
+      toast.error(err.message || `Failed to upload ${type === "k6" ? "k6.js" : "data.csv"}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleUploadK6 = () => {
+    if (k6File) uploadFile("k6", k6File);
+  };
+  const handleUploadData = () => {
+    if (dataFile) uploadFile("data", dataFile);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">File Uploads</CardTitle>
+      </CardHeader>
+      <CardContent className="flex gap-4">
+        <div className="flex-1 space-y-2">
+          <p className="text-xs text-muted-foreground font-semibold">k6.js Script</p>
+          <input ref={k6InputRef} type="file" accept=".js" className="hidden" onChange={(e) => setK6File(e.target.files?.[0] || null)} />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => k6InputRef.current?.click()}>
+              <Upload className="h-4 w-4 mr-1" />
+              {k6File ? k6File.name : "Choose k6.js"}
+            </Button>
+            {k6File && (
+              <Button size="sm" onClick={handleUploadK6} disabled={isUploadingK6}>
+                {isUploadingK6 ? "Uploading..." : "Upload"}
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 space-y-2">
+          <p className="text-xs text-muted-foreground font-semibold">data.csv</p>
+          <input ref={dataInputRef} type="file" accept=".csv" className="hidden" onChange={(e) => setDataFile(e.target.files?.[0] || null)} />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => dataInputRef.current?.click()}>
+              <Upload className="h-4 w-4 mr-1" />
+              {dataFile ? dataFile.name : "Choose data.csv"}
+            </Button>
+            {dataFile && (
+              <Button size="sm" onClick={handleUploadData} disabled={isUploadingData}>
+                {isUploadingData ? "Uploading..." : "Upload"}
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
     </Card>
   );
 }
@@ -375,6 +450,9 @@ export default function TestDetail() {
             </CardContent>
           </Card>
         )}
+
+        {/* File Uploads Section */}
+        {currentData && <FileUploadSection testId={id!} />}
 
         {/* Executions Section */}
         <div className="space-y-4">
