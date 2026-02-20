@@ -1,13 +1,14 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, updateTest, type Execution, type ExecutionDetail } from "@/lib/api";
+import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, updateTest, deleteTest, type Execution, type ExecutionDetail } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -214,6 +215,23 @@ export default function TestDetail() {
     setIsSaving(false);
   };
 
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setIsDeleting(true);
+    try {
+      await deleteTest(id);
+      toast.success("Test deleted successfully!");
+      navigate("/");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete test");
+    }
+    setIsDeleting(false);
+  };
+
   const { data: executions, isLoading: execLoading, error: execError } = useQuery({
     queryKey: ["executions", id],
     queryFn: () => fetchExecutions(id!),
@@ -256,14 +274,23 @@ export default function TestDetail() {
               <p className="text-sm opacity-80 mt-0.5">Test ID: {id}</p>
             </div>
           </div>
-          <Button
-            onClick={handleRunTest}
-            disabled={isRunning}
-            className="bg-success hover:bg-success/90 text-success-foreground"
-          >
-            <Play className="h-4 w-4 mr-1" />
-            {isRunning ? "Running..." : "Run Test"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => { setShowDeleteDialog(true); setDeleteConfirmName(""); }}
+            >
+              <Trash2 className="h-4 w-4 mr-1" /> Delete
+            </Button>
+            <Button
+              onClick={handleRunTest}
+              disabled={isRunning}
+              className="bg-success hover:bg-success/90 text-success-foreground"
+            >
+              <Play className="h-4 w-4 mr-1" />
+              {isRunning ? "Running..." : "Run Test"}
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -360,6 +387,34 @@ export default function TestDetail() {
           ))}
         </div>
       </section>
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Test</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. Type <span className="font-semibold text-foreground">{testName}</span> to confirm.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder="Type the test name to confirm"
+            value={deleteConfirmName}
+            onChange={(e) => setDeleteConfirmName(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteConfirmName !== testName || isDeleting}
+              onClick={handleDelete}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
