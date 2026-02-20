@@ -313,7 +313,7 @@ export default function TestDetail() {
               ] as const).map(({ key, label }) => (
                 <div key={key}>
                   <p className="text-xs text-muted-foreground">{label}</p>
-                  {isEditing ? (
+                  {isEditing && key !== "test_name" ? (
                     <Input
                       className="mt-1"
                       value={editValues[key]}
