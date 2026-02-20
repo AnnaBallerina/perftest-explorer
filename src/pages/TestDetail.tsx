@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X, Trash2 } from "lucide-react";
@@ -66,7 +67,13 @@ function ExecutionBox({ execution }: { execution: Execution }) {
     queryKey: ["executionDetail", execution.job],
     queryFn: () => fetchExecutionDetail(execution.job),
     enabled: expanded,
+    retry: (failureCount, err) => {
+      if (err instanceof Error && err.message.includes("404")) return false;
+      return failureCount < 3;
+    },
   });
+
+  const is404 = error instanceof Error && error.message.includes("404");
 
   return (
     <Card>
@@ -94,7 +101,16 @@ function ExecutionBox({ execution }: { execution: Execution }) {
           </div>
 
           {isLoading && <Skeleton className="h-32 w-full" />}
-          {error && (
+          {is404 && (
+            <div className="flex flex-col items-center justify-center py-8 space-y-3">
+              <div className="relative flex items-center justify-center">
+                <div className="h-12 w-12 rounded-full border-4 border-muted border-t-primary animate-spin" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">Test is running…</p>
+              <Progress value={undefined} className="w-48 h-2 animate-pulse" />
+            </div>
+          )}
+          {error && !is404 && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{(error as Error).message}</AlertDescription>
