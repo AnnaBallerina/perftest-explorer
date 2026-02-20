@@ -1,13 +1,14 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, type Execution, type ExecutionDetail } from "@/lib/api";
+import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, updateTest, type Execution, type ExecutionDetail } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 const statusVariant = (status: string) => {
@@ -149,12 +150,69 @@ export default function TestDetail() {
   } | null;
 
   const [isRunning, setIsRunning] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editValues, setEditValues] = useState({
+    test_name: "",
+    url: "",
+    owner: "",
+    rps: "",
+    ramp: "",
+    hold: "",
+    dashboard: "",
+  });
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["testDetail", id],
     queryFn: () => fetchTestDetail(id!),
     enabled: !!id && !stateData,
   });
+
+  const currentData = stateData || data;
+
+  useEffect(() => {
+    if (currentData) {
+      setEditValues({
+        test_name: String(currentData.test_name || ""),
+        url: String(currentData.url || ""),
+        owner: String(currentData.owner || ""),
+        rps: String(currentData.rps || ""),
+        ramp: String(currentData.ramp || ""),
+        hold: String(currentData.hold || ""),
+        dashboard: String(currentData.dashboard || ""),
+      });
+    }
+  }, [currentData]);
+
+  const handleSave = async () => {
+    if (!id) return;
+    setIsSaving(true);
+    try {
+      // Only send changed fields
+      const changes: Record<string, string> = {};
+      const original = currentData;
+      if (original) {
+        for (const key of Object.keys(editValues) as (keyof typeof editValues)[]) {
+          if (editValues[key] !== String(original[key] || "")) {
+            changes[key] = editValues[key];
+          }
+        }
+      }
+      if (Object.keys(changes).length === 0) {
+        toast.info("No changes to save");
+        setIsEditing(false);
+        setIsSaving(false);
+        return;
+      }
+      await updateTest(id, changes);
+      toast.success("Test updated successfully!");
+      setIsEditing(false);
+      refetch();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update test");
+    }
+    setIsSaving(false);
+  };
 
   const { data: executions, isLoading: execLoading, error: execError } = useQuery({
     queryKey: ["executions", id],
@@ -225,40 +283,62 @@ export default function TestDetail() {
           </Alert>
         )}
 
-        {(stateData || data) && (
+        {currentData && (
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Test Configuration</CardTitle>
+              {!isEditing ? (
+                <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                  <Pencil className="h-4 w-4 mr-1" /> Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { setIsEditing(false); setEditValues({ test_name: String(currentData.test_name || ""), url: String(currentData.url || ""), owner: String(currentData.owner || ""), rps: String(currentData.rps || ""), ramp: String(currentData.ramp || ""), hold: String(currentData.hold || ""), dashboard: String(currentData.dashboard || "") }); }} disabled={isSaving}>
+                    <X className="h-4 w-4 mr-1" /> Cancel
+                  </Button>
+                  <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                    <Save className="h-4 w-4 mr-1" /> {isSaving ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              )}
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {([
+                { key: "test_name", label: "Test Name" },
+                { key: "url", label: "URL" },
+                { key: "owner", label: "Owner" },
+                { key: "rps", label: "RPS" },
+                { key: "ramp", label: "RAMP" },
+                { key: "hold", label: "HOLD" },
+              ] as const).map(({ key, label }) => (
+                <div key={key}>
+                  <p className="text-xs text-muted-foreground">{label}</p>
+                  {isEditing ? (
+                    <Input
+                      className="mt-1"
+                      value={editValues[key]}
+                      onChange={(e) => setEditValues((prev) => ({ ...prev, [key]: e.target.value }))}
+                    />
+                  ) : (
+                    <p className="text-sm font-medium mt-1 break-all">{String(currentData[key] || "")}</p>
+                  )}
+                </div>
+              ))}
               <div>
-                <p className="text-xs text-muted-foreground">Test Name</p>
-                <p className="text-sm font-medium mt-1">{stateData?.test_name || data?.test_name}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">URL</p>
-                <p className="text-sm font-medium mt-1">{stateData?.url || data?.url}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Owner</p>
-                <p className="text-sm font-medium mt-1 break-all">{stateData?.owner || data?.owner}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">RPS</p>
-                <p className="text-sm font-medium mt-1">{stateData?.rps || data?.rps}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">RAMP</p>
-                <p className="text-sm font-medium mt-1">{stateData?.ramp || data?.ramp}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">HOLD</p>
-                <p className="text-sm font-medium mt-1">{stateData?.hold || data?.hold}</p>
-              </div>
-              <div>
-                <a href={stateData?.dashboard || data?.dashboard} target="_blank" rel="noopener noreferrer">
-                  <p className="text-sm font-medium mt-1">Grafana dashboard LINK</p>
-                </a>
+                {isEditing ? (
+                  <>
+                    <p className="text-xs text-muted-foreground">Dashboard URL</p>
+                    <Input
+                      className="mt-1"
+                      value={editValues.dashboard}
+                      onChange={(e) => setEditValues((prev) => ({ ...prev, dashboard: e.target.value }))}
+                    />
+                  </>
+                ) : (
+                  <a href={String(currentData.dashboard || "")} target="_blank" rel="noopener noreferrer">
+                    <p className="text-sm font-medium mt-1">Grafana dashboard LINK</p>
+                  </a>
+                )}
               </div>
             </CardContent>
           </Card>

@@ -60,6 +60,15 @@ export async function fetchExecutions(id: string): Promise<Execution[]> {
   return res.json();
 }
 
+export async function updateTest(id: string, updates: Record<string, unknown>): Promise<void> {
+  const res = await fetch(`${BASE_URL}/backend/test/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) throw new Error(`Failed to update test: ${res.status}`);
+}
+
 export async function fetchExecutionDetail(job: string): Promise<ExecutionDetail> {
   const res = await fetch(`/backend/test_detail/${job}`);
   if (!res.ok) throw new Error(`Failed to fetch execution detail: ${res.status}`);
