@@ -60,6 +60,13 @@ export async function fetchExecutions(id: string): Promise<Execution[]> {
   return res.json();
 }
 
+export async function deleteTest(id: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/backend/test/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(`Failed to delete test: ${res.status}`);
+}
+
 export async function updateTest(id: string, updates: Record<string, unknown>): Promise<void> {
   const res = await fetch(`${BASE_URL}/backend/test/${id}`, {
     method: "PUT",
