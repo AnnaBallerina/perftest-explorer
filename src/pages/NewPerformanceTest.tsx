@@ -3,10 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import CodeMirror from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
+import { ArrowLeft, Upload } from "lucide-react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 
 export default function NewPerformanceTest() {
@@ -18,6 +16,12 @@ export default function NewPerformanceTest() {
   const [testScript, setTestScript] = useState("");
   const [owner, setOwner] = useState("");
   const [hold, setHold] = useState("");
+  const [k6File, setK6File] = useState<File | null>(null);
+  const [dataFile, setDataFile] = useState<File | null>(null);
+  const [isUploadingK6, setIsUploadingK6] = useState(false);
+  const [isUploadingData, setIsUploadingData] = useState(false);
+  const k6InputRef = useRef<HTMLInputElement>(null);
+  const dataInputRef = useRef<HTMLInputElement>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,13 +36,18 @@ export default function NewPerformanceTest() {
       const res = await fetch("http://k6.verisk.com/backend/test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ test_name, url, testScript, owner, rps, ramp, hold }),
+        body: JSON.stringify({ test_name, url, owner, rps, ramp, hold }),
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       const result = await res.json().catch(() => null);
       toast.success("Performance test created successfully!");
-      const testData = { test_name, url, testScript, owner, rps, ramp, hold };
+      const testData = { test_name, url, owner, rps, ramp, hold };
       const testId = result?.id || encodeURIComponent(test_name);
+      // Upload files if selected
+      const uploads: Promise<void>[] = [];
+      if (k6File) uploads.push(uploadFile(String(testId), "k6", k6File));
+      if (dataFile) uploads.push(uploadFile(String(testId), "data", dataFile));
+      if (uploads.length) await Promise.all(uploads);
       setIsSubmitting(false);
       navigate(`/test/${testId}`, { state: testData });
       return;
@@ -46,6 +55,25 @@ export default function NewPerformanceTest() {
       toast.error(err.message || "Failed to create test");
       setIsSubmitting(false);
       return;
+    }
+  };
+
+  const uploadFile = async (testId: string, type: "k6" | "data", file: File) => {
+    const setUploading = type === "k6" ? setIsUploadingK6 : setIsUploadingData;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`http://k6.verisk.com/backend/test/${testId}/upload/${type}`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      toast.success(`${type === "k6" ? "k6.js" : "data.csv"} uploaded successfully!`);
+    } catch (err: any) {
+      toast.error(err.message || `Failed to upload ${type === "k6" ? "k6.js" : "data.csv"}`);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -169,6 +197,57 @@ export default function NewPerformanceTest() {
                 <Button type="button" variant="outline" onClick={() => navigate("/")}>
                   Cancel
                 </Button>
+              </div>
+
+              <div className="border-t pt-5 mt-2 space-y-4">
+                <p className="text-sm font-semibold text-muted-foreground">File Uploads</p>
+                <p className="text-xs text-muted-foreground">Upload files after creating the test. The test ID will be used in the upload path.</p>
+
+                <div className="flex gap-3">
+                  <div className="flex-1 space-y-2">
+                    <Label className="font-semibold">k6.js Script</Label>
+                    <input
+                      ref={k6InputRef}
+                      type="file"
+                      accept=".js"
+                      className="hidden"
+                      onChange={(e) => setK6File(e.target.files?.[0] || null)}
+                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => k6InputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-1" />
+                        {k6File ? k6File.name : "Choose k6.js"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 space-y-2">
+                    <Label className="font-semibold">data.csv</Label>
+                    <input
+                      ref={dataInputRef}
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={(e) => setDataFile(e.target.files?.[0] || null)}
+                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => dataInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-1" />
+                        {dataFile ? dataFile.name : "Choose data.csv"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </form>
           </CardContent>
