@@ -77,7 +77,7 @@ export async function updateTest(id: string, updates: Record<string, unknown>): 
 }
 
 export async function fetchExecutionDetail(job: string): Promise<ExecutionDetail> {
-  const res = await fetch(`/backend/test_detail/${job}`);
+  const res = await fetch(`/backend/test_execution_detail/${job}`);
   if (!res.ok) throw new Error(`Failed to fetch execution detail: ${res.status}`);
   return res.json();
 }
