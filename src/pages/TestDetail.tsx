@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, updateTest, deleteTest, type Execution, type ExecutionDetail } from "@/lib/api";
+import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, fetchPodLogs, updateTest, deleteTest, type Execution, type ExecutionDetail } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X, Trash2, Upload } from "lucide-react";
+import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X, Trash2, Upload, FileText } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -62,6 +62,10 @@ function MetricCard({ name, values }: { name: string; values: Record<string, num
 
 function ExecutionBox({ execution }: { execution: Execution }) {
   const [expanded, setExpanded] = useState(false);
+  const [logs, setLogs] = useState<string | null>(null);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logsError, setLogsError] = useState<string | null>(null);
+  const [showLogs, setShowLogs] = useState(false);
 
   const { data: detail, isLoading, error } = useQuery({
     queryKey: ["executionDetail", execution.job],
@@ -74,6 +78,24 @@ function ExecutionBox({ execution }: { execution: Execution }) {
   });
 
   const is404 = error instanceof Error && error.message.includes("404");
+
+  const handleFetchLogs = async () => {
+    if (showLogs && logs !== null) {
+      setShowLogs(false);
+      return;
+    }
+    setLogsLoading(true);
+    setLogsError(null);
+    try {
+      const text = await fetchPodLogs(execution.job);
+      setLogs(text);
+      setShowLogs(true);
+    } catch (err: any) {
+      setLogsError(err.message || "Failed to fetch logs");
+    } finally {
+      setLogsLoading(false);
+    }
+  };
 
   return (
     <Card>
@@ -119,7 +141,6 @@ function ExecutionBox({ execution }: { execution: Execution }) {
 
           {detail?.result && (
             <>
-              {/* Checks */}
               {detail.result.root_group?.checks && Object.keys(detail.result.root_group.checks).length > 0 && (
                 <div>
                   <p className="text-sm font-semibold mb-2">Checks</p>
@@ -133,7 +154,6 @@ function ExecutionBox({ execution }: { execution: Execution }) {
                 </div>
               )}
 
-              {/* Metrics */}
               <div>
                 <p className="text-sm font-semibold mb-2">Metrics</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -146,6 +166,30 @@ function ExecutionBox({ execution }: { execution: Execution }) {
               </div>
             </>
           )}
+
+          {/* Logs Section */}
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); handleFetchLogs(); }}
+              disabled={logsLoading}
+            >
+              <FileText className="h-4 w-4 mr-1" />
+              {logsLoading ? "Loading logs..." : showLogs ? "Hide Logs" : "View Logs"}
+            </Button>
+            {logsError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{logsError}</AlertDescription>
+              </Alert>
+            )}
+            {showLogs && logs !== null && (
+              <pre className="bg-muted text-muted-foreground text-xs p-4 rounded-md overflow-auto max-h-96 whitespace-pre-wrap break-all">
+                {logs}
+              </pre>
+            )}
+          </div>
         </CardContent>
       )}
     </Card>

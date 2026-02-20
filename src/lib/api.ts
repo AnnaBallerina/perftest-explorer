@@ -81,3 +81,9 @@ export async function fetchExecutionDetail(job: string): Promise<ExecutionDetail
   if (!res.ok) throw new Error(`Failed to fetch execution detail: ${res.status}`);
   return res.json();
 }
+
+export async function fetchPodLogs(podName: string): Promise<string> {
+  const res = await fetch(`/backend/pod/${podName}/logs`);
+  if (!res.ok) throw new Error(`Failed to fetch logs: ${res.status}`);
+  return res.text();
+}
