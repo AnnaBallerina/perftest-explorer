@@ -153,21 +153,6 @@ export default function NewPerformanceTest() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="hold" className="font-semibold">
-                  K6_Script <span className="text-danger">*</span>
-                </Label>
-                <div className="rounded-md border border-input overflow-hidden">
-                  <CodeMirror
-                    value={testScript}
-                    onChange={(val) => setTestScript(val)}
-                    extensions={[javascript()]}
-                    height="300px"
-                    theme="light"
-                    placeholder="// Write your k6 script here..."
-                  />
-                </div>
-              </div>
 
               <div className="flex gap-3 pt-2">
                 <Button
