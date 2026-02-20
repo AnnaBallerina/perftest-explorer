@@ -323,7 +323,7 @@ export default function TestDetail() {
     setIsDeleting(false);
   };
 
-  const { data: executions, isLoading: execLoading, error: execError } = useQuery({
+  const { data: executions, isLoading: execLoading, error: execError, refetch: refetchExecutions } = useQuery({
     queryKey: ["executions", id],
     queryFn: () => fetchExecutions(id!),
     enabled: !!id,
@@ -339,6 +339,7 @@ export default function TestDetail() {
       });
       if (!res.ok) throw new Error(`Run failed: ${res.status}`);
       toast.success("Test started successfully!");
+      setTimeout(() => refetchExecutions(), 1000);
     } catch (err: any) {
       toast.error(err.message || "Failed to run test");
     }
