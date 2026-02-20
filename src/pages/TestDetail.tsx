@@ -325,20 +325,9 @@ export default function TestDetail() {
                 </div>
               ))}
               <div>
-                {isEditing ? (
-                  <>
-                    <p className="text-xs text-muted-foreground">Dashboard URL</p>
-                    <Input
-                      className="mt-1"
-                      value={editValues.dashboard}
-                      onChange={(e) => setEditValues((prev) => ({ ...prev, dashboard: e.target.value }))}
-                    />
-                  </>
-                ) : (
-                  <a href={String(currentData.dashboard || "")} target="_blank" rel="noopener noreferrer">
-                    <p className="text-sm font-medium mt-1">Grafana dashboard LINK</p>
-                  </a>
-                )}
+                <a href={String(currentData.dashboard || "")} target="_blank" rel="noopener noreferrer">
+                  <p className="text-sm font-medium mt-1">Grafana dashboard LINK</p>
+                </a>
               </div>
             </CardContent>
           </Card>
