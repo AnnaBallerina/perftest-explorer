@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { AlertCircle, ArrowLeft, Play, ChevronDown, ChevronUp, Pencil, Save, X, Trash2, Upload, FileText } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -110,26 +111,45 @@ function ExecutionBox({ execution, testId, onDeleted }: { execution: Execution; 
         </div>
          <div className="flex items-center gap-2">
            <Badge variant="secondary">{execution.rps} RPS</Badge>
-           <Button
-             variant="destructive"
-             size="icon"
-             className="h-7 w-7"
-             disabled={isDeleteExec}
-             onClick={async (e) => {
-               e.stopPropagation();
-               setIsDeleteExec(true);
-               try {
-                 await deleteExecution(execution.id);
-                 toast.success("Execution deleted");
-                 onDeleted();
-               } catch (err: any) {
-                 toast.error(err.message || "Failed to delete execution");
-               }
-               setIsDeleteExec(false);
-             }}
-           >
-             <Trash2 className="h-3.5 w-3.5" />
-           </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="h-7 w-7"
+                  disabled={isDeleteExec}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Execution #{execution.id}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the execution and its data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={isDeleteExec}
+                    onClick={async () => {
+                      setIsDeleteExec(true);
+                      try {
+                        await deleteExecution(execution.id);
+                        toast.success("Execution deleted");
+                        onDeleted();
+                      } catch (err: any) {
+                        toast.error(err.message || "Failed to delete execution");
+                      }
+                      setIsDeleteExec(false);
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
          </div>
       </CardHeader>
