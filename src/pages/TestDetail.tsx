@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, fetchPodLogs, updateTest, deleteTest, type Execution, type ExecutionDetail } from "@/lib/api";
+import { fetchTestDetail, fetchExecutions, fetchExecutionDetail, fetchPodLogs, updateTest, deleteTest, deleteExecution, type Execution, type ExecutionDetail } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,8 @@ function MetricCard({ name, values }: { name: string; values: Record<string, num
   );
 }
 
-function ExecutionBox({ execution }: { execution: Execution }) {
+function ExecutionBox({ execution, testId, onDeleted }: { execution: Execution; testId: string; onDeleted: () => void }) {
+  const [isDeleteExec, setIsDeleteExec] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [logs, setLogs] = useState<string | null>(null);
   const [logsLoading, setLogsLoading] = useState(false);
@@ -107,10 +108,30 @@ function ExecutionBox({ execution }: { execution: Execution }) {
           <CardTitle className="text-base">Execution #{execution.id}</CardTitle>
           <p className="text-xs text-muted-foreground mt-0.5">Job: {execution.job}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{execution.rps} RPS</Badge>
-          {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </div>
+         <div className="flex items-center gap-2">
+           <Badge variant="secondary">{execution.rps} RPS</Badge>
+           <Button
+             variant="destructive"
+             size="icon"
+             className="h-7 w-7"
+             disabled={isDeleteExec}
+             onClick={async (e) => {
+               e.stopPropagation();
+               setIsDeleteExec(true);
+               try {
+                 await deleteExecution(testId, execution.id);
+                 toast.success("Execution deleted");
+                 onDeleted();
+               } catch (err: any) {
+                 toast.error(err.message || "Failed to delete execution");
+               }
+               setIsDeleteExec(false);
+             }}
+           >
+             <Trash2 className="h-3.5 w-3.5" />
+           </Button>
+           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+         </div>
       </CardHeader>
 
       {expanded && (
@@ -522,7 +543,7 @@ export default function TestDetail() {
           )}
 
           {executions?.map((exec) => (
-            <ExecutionBox key={exec.id} execution={exec} />
+            <ExecutionBox key={exec.id} execution={exec} testId={id!} onDeleted={() => refetchExecutions()} />
           ))}
         </div>
       </section>
