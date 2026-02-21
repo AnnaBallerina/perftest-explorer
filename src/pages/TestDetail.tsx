@@ -119,7 +119,7 @@ function ExecutionBox({ execution, testId, onDeleted }: { execution: Execution; 
                e.stopPropagation();
                setIsDeleteExec(true);
                try {
-                 await deleteExecution(testId, execution.id);
+                 await deleteExecution(execution.id);
                  toast.success("Execution deleted");
                  onDeleted();
                } catch (err: any) {

@@ -82,11 +82,9 @@ export async function fetchExecutionDetail(job: string): Promise<ExecutionDetail
   return res.json();
 }
 
-export async function deleteExecution(testId: string, executionId: number): Promise<void> {
-  const res = await fetch(`${BASE_URL}/backend/test/${testId}/executions`, {
+export async function deleteExecution(executionId: number): Promise<void> {
+  const res = await fetch(`${BASE_URL}/backend/execution/${executionId}`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: executionId }),
   });
   if (!res.ok) throw new Error(`Failed to delete execution: ${res.status}`);
 }
